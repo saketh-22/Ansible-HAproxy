@@ -1,0 +1,6 @@
+Host bastionNSO
+	HostName 45.114.123.146
+	User ubuntu
+	IdentityFile ~/.ssh/id_rsa.pub
+	StrictHostKeyChecking no
+	PasswordAuthentication no	
