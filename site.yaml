@@ -12,3 +12,22 @@
         name: haproxy
         state: present
         update_cache: true
+
+- hosts: webservers
+  become: yes
+  tasks:
+    - name: install pip
+      apt:
+        name: python3-pip
+        state: present
+    - name: install flask
+      pip:
+        executable: pip3
+        name: flask
+        state: latest
+    - name: copy app.py to webservers
+      template:
+        src: "app.py"
+        dest: "/home"
+    - name: run flask
+      shell: "flask run"
