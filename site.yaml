@@ -30,4 +30,4 @@
         src: "app.py"
         dest: "/home"
     - name: run flask
-      shell: "flask run"
+      shell: "FLASK_APP=app.py flask run"
