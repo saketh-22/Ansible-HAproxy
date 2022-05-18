@@ -16,15 +16,17 @@
       setup:
         filter: ansible_default_ipv4.address
   
-
     - name: copy files haproxy.cfg
       template:
-        src: "/haproxy.cfg"
-        dst: "/etc/haproxy/haproxy.cfg"
-    - name: starting load balancer service
+        src: haproxy.cfg
+        dest: "/etc/haproxy/haproxy.cfg"
+    - name: run Haproxy
       service:
-        name: "haproxy"
-        state: started
+        name: haproxy
+        state: restarted
+
+
+
 
 - hosts: webservers
   become: yes
