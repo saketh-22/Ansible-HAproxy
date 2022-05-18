@@ -12,6 +12,8 @@
         name: haproxy
         state: present
         update_cache: true
+      notify: 
+        - run haproxy
     - name: gather facts
       setup:
         filter: ansible_default_ipv4.address
@@ -20,7 +22,12 @@
       template:
         src: haproxy.cfg
         dest: "/etc/haproxy/haproxy.cfg"
-    - name: run Haproxy
+      notify:
+        - run haproxy
+    
+  handlers:
+        
+    - name: run haproxy
       service:
         name: haproxy
         state: restarted
