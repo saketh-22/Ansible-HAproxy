@@ -1,35 +1,45 @@
 Host bastionNSO
-	HostName 45.114.123.146
-	User ubuntu
-	IdentityFile ~/.ssh/id_rsa.pub
-	StrictHostKeyChecking no
-	PasswordAuthentication no	
+ User ubuntu
+ HostName 45.114.123.146
+ UserKnownHostsFile=~/dev/null
+ IdentityFile ~/.ssh/id_rsa
+ StrictHostKeyChecking no
+ PasswordAuthentication no
+ ControlMaster auto
+ ControlPersist 5m
+
 
 Host HAproxy
-	HostName 31.132.58.220
-	User ubuntu
-	IdentityFile ~/.ssh/id_rsa
-	StrictHostKeyChecking no
-	PasswordAuthentication no	
+ User ubuntu
+ HostName 31.132.58.220
+ UserKnownHostsFile=~/dev/null
+ IdentityFile ~/.ssh/id_rsa
+ StrictHostKeyChecking no
+ PasswordAuthentication no
 
 Host devA
-	HostName 10.6.0.96
-	User ubuntu
-	IdentityFile ~/.ssh/id_rsa
-	StrictHostKeyChecking no
-	PasswordAuthentication no
-
+ User ubuntu
+ HostName 10.6.0.96
+ IdentityFile ~/.ssh/id_rsa
+ UserKnownHostsFile=~/dev/null
+ StrictHostKeyChecking no
+ PasswordAuthentication no
+ ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devB
-	HostName 10.6.0.163
-	User ubuntu
-	IdentityFile ~/.ssh/id_rsa
-	StrictHostKeyChecking no
-	PasswordAuthentication no
+ User ubuntu
+ HostName 10.6.0.163
+ IdentityFile ~/.ssh/id_rsa
+ UserKnownHostsFile=~/dev/null
+ StrictHostKeyChecking no
+ PasswordAuthentication no
+ ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devC
-	HostName 10.6.0.37
-	User ubuntu
-	IdentityFile ~/.ssh/id_rsa
-	StrictHostKeyChecking no
-	PasswordAuthentication no
+ user ubuntu
+ HostName 10.6.0.37
+ IdentityFile ~/.ssh/id_rsa
+ UserKnownHostsFile=~/dev/null
+ StrictHostKeyChecking no
+ PasswordAuthentication no
+ ProxyCommand ssh -W %h:%p bastionNSO

@@ -12,6 +12,19 @@
         name: haproxy
         state: present
         update_cache: true
+    - name: gather facts
+      setup:
+        filter: ansible_default_ipv4.address
+  
+
+    - name: copy files haproxy.cfg
+      template:
+        src: "/haproxy.cfg"
+        dst: "/etc/haproxy/haproxy.cfg"
+    - name: starting load balancer service
+      service:
+        name: "haproxy"
+        state: started
 
 - hosts: webservers
   become: yes
@@ -29,5 +42,10 @@
       template:
         src: "app.py"
         dest: "/home"
-    - name: run flask
-      shell: "FLASK_APP=app.py flask run"
+    - name: start flask
+      shell: |
+         export FLASK_APP=/home/app.py
+         export FLASK_RUN_HOST=0.0.0.0
+         export FLASK_RUN_PORT=8080
+         flask run&
+      
