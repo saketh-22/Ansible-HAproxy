@@ -1,0 +1,11 @@
+description "Gunicorn server for flask app"
+
+start on net-device-up
+stop on shutdown
+
+respawn
+
+
+chdir /home/flask-app
+
+exec ../virtualenv/bin/gunicorn --bind 0.0.0.0:80 app:app

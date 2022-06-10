@@ -7,33 +7,51 @@
   hosts: HAproxy
   become: yes
   tasks:
+
     - name: Installing HAproxy
       apt:
         name: haproxy
         state: present
         update_cache: true
-      notify: 
-        - run haproxy
+      notify:
+        - run Haproxy
+
     - name: gather facts
       setup:
         filter: ansible_default_ipv4.address
-  
+
     - name: copy files haproxy.cfg
       template:
-        src: haproxy.cfg
+        src: haproxy.cfg.j2
         dest: "/etc/haproxy/haproxy.cfg"
       notify:
-        - run haproxy
-    
-  handlers:
-        
-    - name: run haproxy
+        - restart haproxy 
+    - name: install nginx, snmp, snmp-mibs-downloader
+      apt: name = {{ item }} state = present
+      with_items:
+              - ngnix
+              - snmp
+              - snmpd
+              - snmp-mibs-downloader
+    - name: copy snmp conf file
+      template:
+              src: snmp.conf
+              dest: "/etc/snmp/snmp.conf"
+    - name: copy nginx config files
+      template:
+         src: nginx.conf.j2
+         dest: "/etc/nginx/ngnix.conf"
+    - name: nginx start
       service:
-        name: haproxy
-        state: restarted
+        name: nginx
+        state: started
 
+  handlers:
 
-
+    - name: restart haproxy
+      service:
+       name: haproxy
+       state: restarted
 
 - hosts: webservers
   become: yes
@@ -42,19 +60,40 @@
       apt:
         name: python3-pip
         state: present
-    - name: install flask
+    - name: install gunicorn
       pip:
         executable: pip3
-        name: flask
+        name: gunicorn
         state: latest
+    - name: virtualenv
+      shell: pip3 install virtualenv
     - name: copy app.py to webservers
       template:
         src: "app.py"
-        dest: "/home"
-    - name: start flask
-      shell: |
-         export FLASK_APP=/home/app.py
-         export FLASK_RUN_HOST=0.0.0.0
-         export FLASK_RUN_PORT=8080
-         flask run&
-      
+        dest: "/home/flask-app/app.py"
+
+    - name: write gunicorn init script
+      template: src=./gunicorn-upstart.conf.j2
+                 dest=/etc/init/gunicorn-app.conf
+     
+      notify:
+          - restart gunicorn
+
+    - name: install snmpd
+      apt:
+              name: snmpd
+              state: latest
+    - name: install snmp
+      apt:
+              name: snmp
+              state: latest
+    - name: cpy snmpd conf file
+      template:
+              src: snmpd.conf
+              dest: "/etc/snmp/snmpd.conf"
+    - name: run snmpd
+      service: name=snmpd state=restarted      
+
+  handlers:
+    - name: restart gunicorn
+      service:  name=gunicorn-app state=restarted
