@@ -16,6 +16,7 @@ Host HAproxy
  IdentityFile ~/.ssh/id_rsa
  StrictHostKeyChecking no
  PasswordAuthentication no
+ ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devA
  User ubuntu
