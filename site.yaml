@@ -3,20 +3,21 @@
 - hosts: all
   gather_facts: yes
 
-- name: configuring HAproxy loadbalancer
+- name: Configuring HAproxy loadbalancer
   hosts: HAproxy
   become: yes
   tasks:
-
+    - name: Update apt-get repo and cache
+      apt: update_cache=yes force_apt_get=yes
+   
     - name: Installing HAproxy
       apt:
         name: haproxy
         state: present
         update_cache: true
-      notify:
-        - run Haproxy
+      
 
-    - name: gather facts
+    - name: gather server ip addresses
       setup:
         filter: ansible_default_ipv4.address
 
@@ -25,26 +26,27 @@
         src: haproxy.cfg.j2
         dest: "/etc/haproxy/haproxy.cfg"
       notify:
-        - restart haproxy 
+        - restart haproxy
+
     - name: install nginx, snmp, snmp-mibs-downloader
-      apt: name = {{ item }} state = present
-      with_items:
-              - ngnix
-              - snmp
-              - snmpd
-              - snmp-mibs-downloader
+      apt: 
+        update_cache: yes
+        name: [ 'nginx', 'snmp', 'snmp-mibs-downloader' ] 
+        state: latest
+      
+
     - name: copy snmp conf file
       template:
-              src: snmp.conf
-              dest: "/etc/snmp/snmp.conf"
+            src: snmp.conf
+            dest: "/etc/snmp/snmp.conf"
     - name: copy nginx config files
       template:
          src: nginx.conf.j2
-         dest: "/etc/nginx/ngnix.conf"
+         dest: "/etc/nginx/nginx.conf"
     - name: nginx start
       service:
         name: nginx
-        state: started
+        state: restarted
 
   handlers:
 
@@ -60,6 +62,12 @@
       apt:
         name: python3-pip
         state: present
+    
+    - name: install flask
+      pip:
+        executable: pip3
+        name: flask
+        state: latest
     - name: install gunicorn
       pip:
         executable: pip3
@@ -67,33 +75,36 @@
         state: latest
     - name: virtualenv
       shell: pip3 install virtualenv
+    - name: createnew directory
+      file:
+              path: "/home/flask-app/"
+              state: directory
     - name: copy app.py to webservers
       template:
-        src: "app.py"
+        src: "application.py"
         dest: "/home/flask-app/app.py"
 
-    - name: write gunicorn init script
-      template: src=./gunicorn-upstart.conf.j2
-                 dest=/etc/init/gunicorn-app.conf
-     
-      notify:
-          - restart gunicorn
+        #    - name: Copy Upstart configuration
+        #      template: src=flask-app.upstart.j2 dest=/etc/init/flask-app.conf
+
+      #   - name: Make sure our server is running
+      #service: name=flask-app state=started
+
+    - name: start flask app
+      shell: |
+        cd /home/flask-app/
+        gunicorn --bind 0.0.0.0:80 app:app&  
 
     - name: install snmpd
       apt:
               name: snmpd
               state: latest
-    - name: install snmp
-      apt:
-              name: snmp
-              state: latest
+    
     - name: cpy snmpd conf file
       template:
-              src: snmpd.conf
+              src: snmpd.conf.j2
               dest: "/etc/snmp/snmpd.conf"
     - name: run snmpd
-      service: name=snmpd state=restarted      
-
-  handlers:
-    - name: restart gunicorn
-      service:  name=gunicorn-app state=restarted
+      service:
+              name: snmpd
+              state: restarted      
