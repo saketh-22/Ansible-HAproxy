@@ -73,8 +73,7 @@
         executable: pip3
         name: gunicorn
         state: latest
-    - name: virtualenv
-      shell: pip3 install virtualenv
+
     - name: createnew directory
       file:
               path: "/home/flask-app/"
@@ -84,11 +83,6 @@
         src: "application.py"
         dest: "/home/flask-app/app.py"
 
-        #    - name: Copy Upstart configuration
-        #      template: src=flask-app.upstart.j2 dest=/etc/init/flask-app.conf
-
-      #   - name: Make sure our server is running
-      #service: name=flask-app state=started
 
     - name: start flask app
       shell: |
