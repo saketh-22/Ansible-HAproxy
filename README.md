@@ -49,7 +49,7 @@ The playbook includes a basic function test that sends three HTTP requests to th
 - Ensure that the necessary ports are open on firewalls for HTTP (80), UDP (1611), and HAproxy UI (8011).
 
 ## References
-- [HAProxy Configuration](https://haproxy.org/)
-- [Nginx UDP Load Balancing](https://docs.nginx.com/nginx/admin-guide/load-balancer/udp-load-balancing/)
-- [Flask App Repository](https://github.com/pallets/flask)
+- [HAProxy Configuration](https://docs.haproxy.org/)
+- [Nginx UDP Load Balancing](https://docs.nginx.com/nginx/admin-guide/load-balancer/tcp-udp-load-balancer/)
+- [Flask App Repository](https://flask.palletsprojects.com/en/3.0.x/)
 - [Ansible Playbooks](https://docs.ansible.com/ansible/latest/user_guide/playbooks.html)
